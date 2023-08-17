@@ -27,8 +27,8 @@ async function scrapeWeekScores(week) {
             const team1Name = teamElements.eq(0).find('.team-name-link').text();
             const team2Name = teamElements.eq(1).find('.team-name-link').text();
 
-            teams.push({ team: team1Name });
-            teams.push({ team: team2Name });
+            teams.push({ team: team1Name, teamNumber: 1 });
+            teams.push({ team: team2Name, teamNumber: 2 });
         });
 
         cheerioInstance('div:nth-child(1) > div:nth-child(2) > div:nth-child(1) > table:nth-child(1) > tbody:nth-child(2)').each(function () {
@@ -36,25 +36,26 @@ async function scrapeWeekScores(week) {
             const team1Score = teamElements.eq(0).text();
             const team2Score = teamElements.eq(1).text();
 
-            scores.push({ score: team1Score });
-            scores.push({ score: team2Score });
+            scores.push({ score: team1Score, teamNumber: 1 });
+            scores.push({ score: team2Score, teamNumber: 2 });
         });
 
         const combinedData = [];
-        combinedData.push({
-            week: 'Week ' + week
-        })
-        for (let i = 0; i < teams.length; i++) {
+        for (let i = 0; i < teams.length; i += 2) {
             combinedData.push({
-                team: teams[i],
-                score: scores[i]
+                week: 'Week ' + week,
+                team1: teams[i],
+                team1score: scores[i],
+                team2: teams[i + 1],
+                team2score: scores[i + 1],
             });
         }
-        // console.log(`Week ${week} Scores:`, combinedData);
+        console.log(`Week ${week} Scores:`, combinedData);
     } catch (error) {
         console.error(`Error scraping week ${week} scores:`, error);
     }
 }
+
 
 async function scrapeBowlScores(week) {
     const url = `${baseUrl}${bowlUrl}${week}/`;
@@ -72,10 +73,10 @@ async function scrapeBowlScores(week) {
             const team2Name = teamElements.eq(1).find('.team-name-link').text();
             const bowlName = cheerioInstance(this).find('.series-statement').text().split(',')[0].trim();
 
-            bowlNames.push({bowlName});
+            bowlNames.push({ bowlName });
 
-            teams.push({ team: team1Name });
-            teams.push({ team: team2Name });
+            teams.push({ team: team1Name, teamNumber: 1 });
+            teams.push({ team: team2Name, teamNumber: 2 });
         });
 
         cheerioInstance('div:nth-child(1) > div:nth-child(2) > div:nth-child(1) > table:nth-child(1) > tbody:nth-child(2)').each(function () {
@@ -83,19 +84,18 @@ async function scrapeBowlScores(week) {
             const team1Score = teamElements.eq(0).text();
             const team2Score = teamElements.eq(1).text();
 
-            scores.push({ score: team1Score });
-            scores.push({ score: team2Score });
+            scores.push({ score: team1Score, teamNumber: 1 });
+            scores.push({ score: team2Score, teamNumber: 2 });
         });
 
         const combinedBowlData = [];
-        combinedBowlData.push({
-            week: 'Bowls ' + week
-        })
-        for (let i = 0; i < teams.length; i++) {
+        for (let i = 0; i < teams.length; i += 2) {
             combinedBowlData.push({
-                bowl: bowlNames[Math.floor(i / 2)],
-                team: teams[i],
-                score: scores[i]
+                bowl: bowlNames[i / 2],
+                team1: teams[i],
+                team1score: scores[i],
+                team2: teams[i + 1],
+                team2score: scores[i + 1],
             });
         }
         console.log(`Bowl ${week} Scores:`, combinedBowlData);
@@ -104,9 +104,12 @@ async function scrapeBowlScores(week) {
     }
 }
 
-//for (let week = 1; week <= weeks; week++) {
-  //  scrapeWeekScores(week);
-//}
-for (let bowlWeek = 16; bowlWeek <= bowlWeeks; bowlWeek++){
-    scrapeBowlScores(bowlWeek);
+// ... (other code)
+
+
+for (let week = 1; week <= weeks; week++) {
+   scrapeWeekScores(week);
 }
+// for (let bowlWeek = 16; bowlWeek <= bowlWeeks; bowlWeek++){
+//     scrapeBowlScores(bowlWeek);
+// }
