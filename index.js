@@ -70,7 +70,7 @@ async function scrapeBowlScores(week) {
             const teamElements = cheerioInstance(this).find('.team');
             const team1Name = teamElements.eq(0).find('.team-name-link').text();
             const team2Name = teamElements.eq(1).find('.team-name-link').text();
-            const bowlName = teamElements.find('.section series-statement').text();
+            const bowlName = cheerioInstance(this).find('.series-statement').text().split(',')[0].trim();
 
             bowlNames.push({bowlName});
 
